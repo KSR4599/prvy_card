@@ -62,35 +62,7 @@ function timeoutData(data, timeout = 1000) {
   });
 }
 
- function handleLogin(username,password){
- window.alert(username)
- window.alert(password)
- if(username=="admin" && password=="admin"){
-   history.push("/admin");
- }
-  else{
-    
-   axios.post("http://localhost:8013/api/login1/?username="+username+"&password="+password
-   , {
-    username : username,
-    password: password
-  },{
-    withCredentials: true
-   })
-   .then(response => {
-      window.alert(response)
-      if(response.status == 200){
-        history.push('/profile')
-      }
-      else{
-        window.alert("xxxx");
-      }
-        });
 
-
-
-    }
-  }
    
 export default function SignIn() {
   const classes = useStyles();
@@ -110,12 +82,34 @@ useEffect(() =>{
 
 
 const sendRequest = useCallback(async (username,password) => {
+ 
   if(username == "admin" && password=="admin"){
-    history.push({
-      pathname: '/admin',
-      state: { username: username }
-    })
+
+    let url = "http://localhost:8013/api1/get_admin?username=admin&password=admin"
+
+    if(isSending) return;
+      setIsSending(true);
+
+    let res = await fetch(
+     url,
+      { method: 'get'});
+
+
+      if(res.status == 200){
+        history.push({
+          pathname: '/admin'
+        })
+        if(res.status == 404){
+          window.alert("User not found.Please register first.")
+          history.push("/");
+        }
+
+        if(isMounted.current)
+        setIsSending(false);
+}
   }
+  
+
   else{
 //if(isSending) return;
   setIsSending(true);

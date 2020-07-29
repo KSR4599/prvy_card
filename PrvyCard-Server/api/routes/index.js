@@ -31,19 +31,6 @@ const nodemailer = require('nodemailer')
 var flag = 0;
 
 
-router.get('/get_user', (req, res, next) => {
-  res.send({ user :  req.user});
-})
-
-
-router.get('/logout', function(req, res, next){
-   
-  req.logout();
-   res.status(200).send("User Logged out!");
-
-  
- })
-
 
 router.get('/',function(req, res,next){
 

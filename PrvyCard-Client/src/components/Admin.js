@@ -31,6 +31,7 @@ import { createBrowserHistory } from "history";
 import axios from 'axios';
 
 const history = createBrowserHistory({ forceRefresh: true });
+var isAuth = false;
 
 function createData(FirstName, LastName, Email, UserName, PrvyCode) {
   return { FirstName, LastName, Email, UserName, PrvyCode };
@@ -400,8 +401,19 @@ export default function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [rowss,setRecords] = React.useState('');
   
-  useEffect(() => {
+  useEffect(async () => {
     getRecordsToApprove(setRecords);
+
+    let url = "http://localhost:8013/api/get_user"
+
+    let res = await fetch(
+     url,
+      { method: 'get'});
+
+      if(res.status == 200){
+        console.log("Them authenticated user is : " + res.pref_username)
+      }
+    
   },[])
 
   console.log(rowss)

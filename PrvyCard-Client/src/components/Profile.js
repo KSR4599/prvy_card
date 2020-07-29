@@ -161,6 +161,29 @@ function useMergeState(initialState) {
     const handleClose = () => {
       setAnchorEl(null);
     };
+
+
+    const onLogout= useCallback(async () => {
+      let url = "http://localhost:8013/logout/"
+
+      axios({
+        method: "GET",
+        withCredentials: true,
+        url: url,
+      }).then((res) => {
+        if(res.status == 200){
+
+          history.push({
+            pathname: '/login'
+          })
+          
+        } else {
+          console.log("Error in Logging out the user!");
+        }
+  
+      })
+
+    })
   
     return (
       <div className={classes.root}>
@@ -204,7 +227,7 @@ function useMergeState(initialState) {
       pathname: '/DisplayProfile',
       state: { uname: props.uname }
     })}>Profile</MenuItem>
-                  <MenuItem onClick={()=>history.push("/login")}>Logout</MenuItem>
+                  <MenuItem onClick={()=> { onLogout() }}> Logout</MenuItem>
                 </Menu>
               </div>
             )}
@@ -339,7 +362,27 @@ setDefaultImage("multer");
 
 };
 
-useEffect(() =>{
+useEffect(async () =>{
+
+  let url = "http://localhost:8013/get_user/"
+
+  axios({
+    method: "GET",
+    withCredentials: true,
+    url: url,
+  }).then((res) => {
+    if(res.status == 200){
+      console.log("The raw auth response is : "+ res);
+    } 
+
+    if(res.status == 201){
+      console.log("Oops! The user is not authenticated");
+    }
+  })
+
+    
+
+
   getProfileImage(username);
   getProfile(username);
   return () =>{
@@ -930,7 +973,13 @@ const handleContactChange = (event) => {
     <div className={classes.App}>
       <Card className={classes.card}>
       <CardActionArea>
+
+      <div align="center">
       <Avatar className={classes.avatar} key={faces} src={getprofileimageurl}/>
+    </div>
+     
+
+
         <CardContent className={classes.content}>
         <Typography gutterBottom variant="h5" component="h2">
             {FullName}

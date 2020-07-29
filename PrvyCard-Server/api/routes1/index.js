@@ -126,6 +126,25 @@ router.post('/uploadmulter',
   };*/
 
 
+  router.get('/get_admin',function(req,res,next){
+    console.log(":In the get_adminb and username we got is "+ username)
+    var username = req.query.username;
+
+    User.findOne({ 'pref_username': "admin"}, function(err, Admin) {
+      if(Admin){
+        console.log("Adminfound and giving 200")
+        res.status(200).send("admin found!");
+      } else {
+        console.log("Admin not found and giving 404")
+        res.status(404).send("admin not found!");
+      }
+
+  })
+
+})
+
+
+
   router.get('/get_profileimage',function(req,res,next){
     var username = req.query.username;
     Image.findOne({'imageName':username}, function(err,image){
@@ -439,7 +458,7 @@ router.post('/del_request', function(req, res,next) {
         
     User.findOne({ 'pref_username': username}, function(err, user) {
                 if(user){
-                    console.log("User Found in get profile");
+                    //console.log("User Found in get profile");
                     res.status(200).send(user);
                 } else {
                   res.status(404).send("user not found");

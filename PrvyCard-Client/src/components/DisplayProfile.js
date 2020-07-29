@@ -116,7 +116,10 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
+  
+
   function useMergeState(initialState) {
+
     const [state, setState] = useState(initialState);
     const setMergedState = newState => 
       setState(prevState => Object.assign({}, prevState, newState)
@@ -141,6 +144,30 @@ const useStyles = makeStyles((theme) => ({
     const handleClose = () => {
       setAnchorEl(null);
     };
+
+
+    const onLogout= (async () => {
+      let url = "http://localhost:8013/logout/"
+
+      axios({
+        method: "GET",
+        withCredentials: true,
+        url: url,
+      }).then((res) => {
+        if(res.status == 200){
+
+          history.push({
+            pathname: '/login'
+          })
+          
+        } else {
+          console.log("Error in Logging out the user!");
+        }
+  
+      })
+
+    })
+    
   
     return (
       <div className={classes.root}>
@@ -180,7 +207,7 @@ const useStyles = makeStyles((theme) => ({
                   onClose={handleClose}
                 >
                  
-                  <MenuItem onClick={()=>history.push("/login")}>Logout</MenuItem>
+                 <MenuItem onClick={()=> { onLogout() }}> Logout</MenuItem>
                 </Menu>
               </div>
             )}
@@ -204,6 +231,26 @@ export default function SignUp(props) {
   const isMounted =useRef(true);
 
 useEffect(() =>{
+
+
+    let url = "http://localhost:8013/get_user/"
+  
+    axios({
+      method: "GET",
+      withCredentials: true,
+      url: url,
+    }).then((res) => {
+      if(res.status == 200){
+        console.log("The raw auth response is : "+ res);
+      } 
+  
+      if(res.status == 201){
+        console.log("Oops! The user is not authenticated");
+      }
+    })
+
+    
+    
   getProfile(props.location.state.uname);
   return () =>{
     isMounted.current = false 
@@ -393,6 +440,7 @@ let url = "http://localhost:8013/api1/get_profile/?username="+username;
     };
 
     let getprofileimageurl = "http://localhost:8013/api1/get_profileimage/?username="+props.location.state.uname
+
     
     return (
 

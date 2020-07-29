@@ -209,6 +209,24 @@ passport.deserializeUser(function(id, done) {
 });
 
 
+app.get('/get_user', (req, res, next) => {
+ 
+  if(req.isAuthenticated()){
+    res.status(200).send({ user :  req.user});
+  } else {
+    res.status(201).send("user not authenticated!");
+  }
+  
+})
+
+app.get('/logout', function(req, res, next){
+   
+  req.logout();
+   res.status(200).send("User Logged out!");
+
+  
+ })
+
 
 app.use('/api',routes)
 app.use('/api1',routes1)

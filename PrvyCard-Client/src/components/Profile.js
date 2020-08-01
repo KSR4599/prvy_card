@@ -261,6 +261,7 @@ export default function SignUp(props)
   const [Bio,SetBio] = useState('');
   const [Phone,SetPhone] = useState('');
   const[Image,SetImage] = useState('');
+  const[Session,SetSession] = useState('');
   const [image, setImage] = useState({ preview: "", raw: "" });
   
   const [profile,setProfile] = useState('');
@@ -372,11 +373,20 @@ useEffect(async () =>{
     url: url,
   }).then((res) => {
     if(res.status == 200){
+  
+      SetSession(true);
       console.log("The raw auth response is : "+ res);
     } 
 
     if(res.status == 201){
-      console.log("Oops! The user is not authenticated");
+      //console.log("Oops! The user is not authenticated");
+      window.alert("You are not logged in!");
+      SetSession(false);
+      history.push({
+        pathname: '/login'
+      })
+
+
     }
   })
 
@@ -589,6 +599,8 @@ const handleContactChange = (event) => {
 
  let getprofileimageurl = "http://localhost:8013/api1/get_profileimage/?username="+username
   return (
+    Session?
+( 
 <div>
     <MenuAppBar uname={username}/>
     <CssBaseline />
@@ -1070,5 +1082,8 @@ const handleContactChange = (event) => {
         </Grid>  
 </Grid>
     </div>
+): history.push({
+  pathname: '/login'
+})
   );
 }

@@ -46,6 +46,7 @@ import VCard from 'vcard-creator'
 import download from 'js-file-download'
 import axios from 'axios';
 import { Buffer } from 'buffer'
+import ResponsiveMenu from 'react-responsive-navbar';
 
 const history = createBrowserHistory({ forceRefresh: true });
 
@@ -246,6 +247,10 @@ useEffect(() =>{
   
       if(res.status == 201){
         console.log("Oops! The user is not authenticated");
+        window.alert("You are not logged in!");
+      history.push({
+        pathname: '/login'
+      })
       }
     })
 
@@ -444,18 +449,27 @@ let url = "http://localhost:8013/api1/get_profile/?username="+username;
     
     return (
 
-        <div>
-            <MenuAppBar/>
+        <div align = "center">
+
+        <MenuAppBar />
+     
+                
+
+                
             <Container component="main" maxWidth="sm" >
+        
       <CssBaseline />
       <br/>
       <br/>
       
-        <Grid container={true} justify="center" style = {{width:600}}>
+        <Grid container={true} justify="flex-start" style = {{width:600}}>
       <Grid item={true} >
       <div className={classes.App}>
         <Card className={classes.card}>
+        <div align="center">
         <Avatar className={classes.avatar} key={faces}  src={getprofileimageurl}/>
+        </div>
+        
         <CardContent className={classes.content}>
         <Typography gutterBottom variant="h5" component="h2">
             {FullName}
@@ -542,12 +556,9 @@ let url = "http://localhost:8013/api1/get_profile/?username="+username;
         </CardContent>
         </Card>
       </div>
-      
-          </Grid> 
-         
-          <Grid >
-              <br/>
-          <Button
+
+      <div align="center">
+              <Button
         variant="contained"
         color="primary"
         size="large"
@@ -559,6 +570,16 @@ let url = "http://localhost:8013/api1/get_profile/?username="+username;
       >
         Download Details
       </Button>
+
+              </div>
+      
+          </Grid> 
+         
+          <Grid >
+              <br/>
+            
+
+         
       </Grid> 
   </Grid>
   </Container>

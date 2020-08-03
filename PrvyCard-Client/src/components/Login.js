@@ -78,9 +78,6 @@ useEffect(() =>{
   }
 },[])
 
-
-
-
 const sendRequest = useCallback(async (username,password) => {
  
   if(username == "admin" && password=="admin"){
@@ -127,8 +124,7 @@ const sendRequest = useCallback(async (username,password) => {
   }).then((res) => {
     if(res.status == 200){
       history.push({
-        pathname: '/profile',
-        search: username,
+        pathname: '/profile/'+username,
         state: { username: username }
       })
     }

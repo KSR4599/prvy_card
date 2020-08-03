@@ -46,6 +46,13 @@ import VCard from 'vcard-creator'
 import download from 'js-file-download'
 import axios from 'axios';
 import { Buffer } from 'buffer'
+import linkedinImage from '../utils/linkedin.png';
+import facebookImage from '../utils/facebook.png';
+import instagramImage from '../utils/instagram.jpeg';
+import redditImage from '../utils/reddit.jpeg';
+import twitterImage from '../utils/twitter.png';
+import youtubeImage from '../utils/youtube.png';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 const history = createBrowserHistory({ forceRefresh: true });
 
@@ -53,9 +60,20 @@ const faces = [
     "http://i.pravatar.cc/300?img=1"
   ];
 
-const useStyles = makeStyles((theme) => ({
+  const THEME = createMuiTheme({
+    typography: {
+      h6: {
+        "fontWeight": 600,
+      },
+      h5:{
+        "fontWeight": 600,
+      }
+    },
+  });
+
+  const useStyles = makeStyles((theme) => ({
     paper: {
-      marginTop: theme.spacing(8),
+      marginTop: theme.spacing(5),
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -72,10 +90,10 @@ const useStyles = makeStyles((theme) => ({
         width:'100%'
     },
     App:{
-        height:'100%',
+        height:'50%'
     },
     card: {
-      maxWidth: 700,
+      maxWidth: 500,
       margin: "auto",
       transition: "0.3s",
       boxShadow: "0 8px 40px -12px rgba(0,0,0,0.3)",
@@ -87,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
       paddingTop: "56.25%"
     },
     content: {
-      textAlign: "left",
+      textAlign: "center",
       padding: 10
     },
     heading: {
@@ -113,10 +131,16 @@ const useStyles = makeStyles((theme) => ({
     },
     title: {
       flexGrow: 1,
+    },
+    container:{
+        width:'500px',
+        height:'600px'
+    },
+    large: {
+      width: theme.spacing(12),
+      height: theme.spacing(12)
     }
   }));
-
-  
 
   function useMergeState(initialState) {
 
@@ -217,351 +241,386 @@ const useStyles = makeStyles((theme) => ({
     );
                 }
 
-export default function SignUp(props) {
-  console.log(props);
-  const classes = useStyles();
-  const [FullName,SetFullName] = useState('');
-  const [Bio,SetBio] = useState('');
-  const [Phone,SetPhone] = useState('');
-  const[Image,SetImage] = useState('');
-  const [image, setImage] = useState({ preview: "", raw: "" });
-  
-  const [profile,setProfile] = useState('');
-  const[isSending,setIsSending] = useState(false);
-  const isMounted =useRef(true);
-
-useEffect(() =>{
-
-
-    let url = "http://localhost:8013/get_user/"
-  
-    axios({
-      method: "GET",
-      withCredentials: true,
-      url: url,
-    }).then((res) => {
-      if(res.status == 200){
-        console.log("The raw auth response is : "+ res);
-      } 
-  
-      if(res.status == 201){
-        console.log("Oops! The user is not authenticated");
-      }
-    })
-
-    
-    
-  getProfile(props.location.state.uname);
-  return () =>{
-    isMounted.current = false 
-  }
-  
-},[])
-
-  const [LinkedInState,SetLinkedInUName] = useMergeState({
-    LinkedInUName: '',
-    LinkedInDisable: true,
-  });
-  const [InstagramState,SetInstagramUName] = useMergeState({
-    InstagramUName: '',
-    InstagramDisable: true,
-  });
-  const [FacebookState,SetFacebookUName] = useMergeState({
-    FacebookUName: '',
-    FacebookDisable: true,
-  });
-  const [YoutubeState,SetYoutubeUName] = useMergeState({
-    YoutubeUName: '',
-    YoutubeDisable: true,
-  });
-  const [PinterestState,SetPinterestUName] = useMergeState({
-    PinterestUName: '',
-    PinterestDisable: true,
-  });
-  const [RedditState,SetRedditUName] = useMergeState({
-    RedditUName: '',
-    RedditDisable: true,
-  });
-  const [TwitterState,SetTwitterUName] = useMergeState({
-    TwitterUName: '',
-    TwitterDisable: true,
-  });
-  const [socialmedia, setSocialMedia] = React.useState('');
-  const [contact,setContact] = React.useState('');
-  const [showLinkedIn,setShowLinkedIn] = React.useState(false);
-  const [showInstagram,setShowInstagram] = React.useState(false);
-  const [showFacebook,setShowFacebook] = React.useState(false);
-  const [showYoutube,setShowYoutube] = React.useState(false);
-  const [showPinterest,setShowPinterest] = React.useState(false);
-  const [showReddit,setShowReddit] = React.useState(false);
-  const [showTwitter,setShowTwitter] = React.useState(false);
-  
-  const[CellPhone,setCellPhone] = React.useState('');
-  const[HomePhone,setHomePhone] = React.useState('');
-
-
-  const[showCellPhone,setShowCellPhone] = React.useState('');
-  const[showHomePhone,setShowHomePhone] = React.useState('');
-  const[Faxx,setShowFax] = useMergeState({
-      showFax: false,
-  faxValue: ''});
-
-const[Emaill,setShowEmail] = useMergeState({
-showEmail: false,
-emailValue: ''});
-
-const[Country,setCountry] = React.useState('');
-const[Region,setRegion] = React.useState('');
-const[Address,setAddress]=React.useState('');
-const[loc,setloc] = useState('');
-
-function getProfile(username){
-let url = "http://localhost:8013/api1/get_profile/?username="+username;
-
-  axios.get(url)
-  .then(response => {
-    console.log("The response status in get profile is " + response.status);
-    console.log(response)
-    
-    SetFullName(response.data.firstname);
-    
-    SetBio(response.data.bio);
-    setAddress(response.data.address);
-    
-    setCountry(response.data.contactSchema.country);
-    setRegion(response.data.contactSchema.state);
-    setHomePhone(response.data.contactSchema.home);
-    if(response.data.contactSchema.cell != ""){
-      setShowCellPhone(true);
-      setCellPhone(response.data.contactSchema.cell);
-    }
-    if(response.data.contactSchema.home != ""){
-      setShowHomePhone(true);
-      setHomePhone(response.data.contactSchema.home);
-    }
-    if(response.data.contactSchema.email != ""){
-      setShowEmail({showEmail:true,emailValue:response.data.email});;
-    }
-    if(response.data.contactSchema.fax != ""){
-      setShowFax({showFax:true,faxValue:response.data.contactSchema.fax});;
-    }
-    if(response.data.socialSchema.linkedin != ""){
-      SetLinkedInUName({
-        LinkedInUName: response.data.socialSchema.linkedin,
-        LinkedInDisable: false 
-      });
-      setShowLinkedIn(true);
-    }
-    if(response.data.socialSchema.instagram != ""){
-      SetInstagramUName({
-        InstagramUName: response.data.socialSchema.instagram,
-        InstagramDisable: false 
-      });
-      setShowInstagram(true);
-    }
-    if(response.data.socialSchema.facebook != ""){
-      SetFacebookUName({
-        FacebookUName: response.data.socialSchema.facebook,
-        FacebookDisable: false 
-      });
-      setShowFacebook(true);
-    }
-    if(response.data.socialSchema.youtube != ""){
-      SetYoutubeUName({
-        YoutubeUName: response.data.socialSchema.youtube,
-        YoutubeDisable: false 
-      });
-      setShowYoutube(true);
-    };
-    if(response.data.socialSchema.twitter != ""){
-      SetTwitterUName({
-        TwitterUName: response.data.socialSchema.twitter,
-        TwitterDisable: false 
-      });
-      setShowTwitter(true);
-    };
-    if(response.data.socialSchema.pinterest != ""){
-      SetPinterestUName({
-        PinterestUName: response.data.socialSchema.pinterest,
-        PinterestDisable: false 
-      });
-      setShowPinterest(true);
-    };
-    if(response.data.socialSchema.reddit != ""){
-      SetRedditUName({
-        RedditUName: response.data.socialSchema.reddit,
-        RedditDisable: false 
-      });
-      setShowReddit(true);
-    }
-
-     })
-     
-    
-
-  .catch(error => {
-    console.log("Error occured"+ error);
-
-  });
-};
-
-  async function downloadVcardFile(username,FullName,HomePhone,CellPhone,Emaill,Faxx,
-    LinkedInState,TwitterState,InstagramState,FacebookState,Country,Region,Address,Bio,
-    Pinterest,Reddit,Youtube)
-  {
-   
-
-    let imagelocationurl =
-    "http://localhost:8013/api1/get_imagelocation/?username="+username
-    
-     let ll = await axios.get(imagelocationurl)
-    /*.then(response => {
-      console.log("The response status in display profile is from image location " + response.status);
-      console.log(response.data);
-      setloc(response.data);
-    });*/
-
-    
-
-    let url = "http://localhost:8013/api1/get_vcard/?fullname="+FullName+"&username="+username+"&filelocation="+ll.data+"&home="+
-    HomePhone+"&cell="+CellPhone+"&email="+Emaill+"&fax="+Faxx+"&linkedin="+LinkedInState+
-    "&twitter="+TwitterState+"&instagram="+InstagramState+"&facebook="+FacebookState+"&country="+Country+"&region="+Region
-    +"&address="+Address+"&bio="+Bio+"&reddit="+Reddit+"&pinterest="+Pinterest+"&Youtube="+
-    Youtube;
-
-   axios.get(url)
-    .then(response => {
-      console.log("The response status in display profile is " + response.status);
-      console.log(response.data);
-     download(response.data, 'file.vcf')
-        });
-        
-
-    };
-
-    let getprofileimageurl = "http://localhost:8013/api1/get_profileimage/?username="+props.location.state.uname
-
-    
-    return (
-
-        <div>
-            <MenuAppBar/>
-            <Container component="main" maxWidth="sm" >
-      <CssBaseline />
-      <br/>
-      <br/>
-      
-        <Grid container={true} justify="center" style = {{width:600}}>
-      <Grid item={true} >
-      <div className={classes.App}>
-        <Card className={classes.card}>
-        <Avatar className={classes.avatar} key={faces}  src={getprofileimageurl}/>
-        <CardContent className={classes.content}>
-        <Typography gutterBottom variant="h5" component="h2">
-            {FullName}
+                export default function SignUp(props) {
+                  
+                  const classes = useStyles();
+                  const [FullName,SetFullName] = useState('');
+                  const [Bio,SetBio] = useState('');
+                  const [Phone,SetPhone] = useState('');
+                  const[Image,SetImage] = useState('');
+                  const [image, setImage] = useState({ preview: "", raw: "" });
+                  
+                  const [profile,setProfile] = useState('');
+                  const[isSending,setIsSending] = useState(false);
+                  const isMounted =useRef(true);
+                
+                useEffect(() =>{
+                  getProfile(props.match.params.username);
+                  return () =>{
+                    isMounted.current = false 
+                  }
+                  
+                },[])
+                
+                  const [LinkedInState,SetLinkedInUName] = useMergeState({
+                    LinkedInUName: '',
+                    LinkedInDisable: true,
+                  });
+                  const [InstagramState,SetInstagramUName] = useMergeState({
+                    InstagramUName: '',
+                    InstagramDisable: true,
+                  });
+                  const [FacebookState,SetFacebookUName] = useMergeState({
+                    FacebookUName: '',
+                    FacebookDisable: true,
+                  });
+                  const [YoutubeState,SetYoutubeUName] = useMergeState({
+                    YoutubeUName: '',
+                    YoutubeDisable: true,
+                  });
+                  const [PinterestState,SetPinterestUName] = useMergeState({
+                    PinterestUName: '',
+                    PinterestDisable: true,
+                  });
+                  const [RedditState,SetRedditUName] = useMergeState({
+                    RedditUName: '',
+                    RedditDisable: true,
+                  });
+                  const [TwitterState,SetTwitterUName] = useMergeState({
+                    TwitterUName: '',
+                    TwitterDisable: true,
+                  });
+                  const [socialmedia, setSocialMedia] = React.useState('');
+                  const [contact,setContact] = React.useState('');
+                  const [showLinkedIn,setShowLinkedIn] = React.useState(false);
+                  const [showInstagram,setShowInstagram] = React.useState(false);
+                  const [showFacebook,setShowFacebook] = React.useState(false);
+                  const [showYoutube,setShowYoutube] = React.useState(false);
+                  const [showPinterest,setShowPinterest] = React.useState(false);
+                  const [showReddit,setShowReddit] = React.useState(false);
+                  const [showTwitter,setShowTwitter] = React.useState(false);
+                  
+                  const[CellPhone,setCellPhone] = React.useState('');
+                  const[HomePhone,setHomePhone] = React.useState('');
+                  const[occupation,setOccupation] = React.useState('');
+                
+                  const[showCellPhone,setShowCellPhone] = React.useState('');
+                  const[showOccupation,setShowOccupation] = React.useState('');
+                  const[showHomePhone,setShowHomePhone] = React.useState('');
+                  const[Faxx,setShowFax] = useMergeState({
+                      showFax: false,
+                  faxValue: ''});
+                
+                const[Emaill,setShowEmail] = useMergeState({
+                showEmail: false,
+                emailValue: ''});
+                
+                const[Country,setCountry] = React.useState('');
+                const[Region,setRegion] = React.useState('');
+                const[Address,setAddress]=React.useState('');
+                const[loc,setloc] = useState('');
+                
+                const ColoredLine = ({ color }) => (
+                  <hr
+                      style={{
+                          color: color,
+                          backgroundColor: color,
+                          height: 5
+                      }}
+                  />
+                );
+                
+                
+                function getProfile(username){
+                let url = "http://localhost:8013/api1/get_profile/?username="+username;
+                
+                  axios.get(url)
+                  .then(response => {
+                    
+                    SetFullName(response.data.firstname);
+                    
+                    SetBio(response.data.bio);
+                    setAddress(response.data.address);
+                    
+                    setCountry(response.data.contactSchema.country);
+                    setRegion(response.data.contactSchema.state);
+                    setHomePhone(response.data.contactSchema.home);
+                    setOccupation(response.data.occupation);
+                
+                    if(response.data.occupation!= ""){
+                      setShowOccupation(true);
+                      setOccupation(response.data.occupation);
+                    }
+                    if(response.data.contactSchema.cell != ""){
+                      setShowCellPhone(true);
+                      setCellPhone(response.data.contactSchema.cell);
+                    }
+                    if(response.data.contactSchema.home != ""){
+                      setShowHomePhone(true);
+                      setHomePhone(response.data.contactSchema.home);
+                    }
+                    if(response.data.contactSchema.email != ""){
+                      setShowEmail({showEmail:true,emailValue:response.data.email});;
+                    }
+                    if(response.data.contactSchema.fax != ""){
+                      setShowFax({showFax:true,faxValue:response.data.contactSchema.fax});;
+                    }
+                    if(response.data.socialSchema.linkedin != ""){
+                      SetLinkedInUName({
+                        LinkedInUName: response.data.socialSchema.linkedin,
+                        LinkedInDisable: false 
+                      });
+                      setShowLinkedIn(true);
+                    }
+                    if(response.data.socialSchema.instagram != ""){
+                      SetInstagramUName({
+                        InstagramUName: response.data.socialSchema.instagram,
+                        InstagramDisable: false 
+                      });
+                      setShowInstagram(true);
+                    }
+                    if(response.data.socialSchema.facebook != ""){
+                      SetFacebookUName({
+                        FacebookUName: response.data.socialSchema.facebook,
+                        FacebookDisable: false 
+                      });
+                      setShowFacebook(true);
+                    }
+                    if(response.data.socialSchema.youtube != ""){
+                      SetYoutubeUName({
+                        YoutubeUName: response.data.socialSchema.youtube,
+                        YoutubeDisable: false 
+                      });
+                      setShowYoutube(true);
+                    };
+                    if(response.data.socialSchema.twitter != ""){
+                      SetTwitterUName({
+                        TwitterUName: response.data.socialSchema.twitter,
+                        TwitterDisable: false 
+                      });
+                      setShowTwitter(true);
+                    };
+                    if(response.data.socialSchema.pinterest != ""){
+                      SetPinterestUName({
+                        PinterestUName: response.data.socialSchema.pinterest,
+                        PinterestDisable: false 
+                      });
+                      setShowPinterest(true);
+                    };
+                    if(response.data.socialSchema.reddit != ""){
+                      SetRedditUName({
+                        RedditUName: response.data.socialSchema.reddit,
+                        RedditDisable: false 
+                      });
+                      setShowReddit(true);
+                    }
+                
+                     })
+                     
+                    
+                
+                  .catch(error => {
+                    console.log("Error occured"+ error);
+                
+                  });
+                };
+                
+                  async function downloadVcardFile(username,FullName,HomePhone,CellPhone,Emaill,Faxx,
+                    LinkedInState,TwitterState,InstagramState,FacebookState,Country,Region,Address,Bio,
+                    Pinterest,Reddit,Youtube)
+                  {
+                   
+                
+                    let imagelocationurl =
+                    "http://localhost:8013/api1/get_imagelocation/?username="+username
+                    
+                     let ll = await axios.get(imagelocationurl)
+                   
+                    let url = "http://localhost:8013/api1/get_vcard/?fullname="+FullName+"&username="+username+"&filelocation="+ll.data+"&home="+
+                    HomePhone+"&cell="+CellPhone+"&email="+Emaill+"&fax="+Faxx+"&linkedin="+LinkedInState+
+                    "&twitter="+TwitterState+"&instagram="+InstagramState+"&facebook="+FacebookState+"&country="+Country+"&region="+Region
+                    +"&address="+Address+"&bio="+Bio+"&reddit="+Reddit+"&pinterest="+Pinterest+"&Youtube="+
+                    Youtube;
+                
+                   axios.get(url)
+                    .then(response => {
+                     download(response.data, 'file.vcf')
+                        });
+                        
+                
+                    };
+                
+                    let getprofileimageurl = "http://localhost:8013/api1/get_profileimage/?username="+props.match.params.username
+                    let hrefurl = "http://localhost:3000/DisplayProfile/"+props.match.params.username
+                    return (
+                
+                        <div>
+                            <MenuAppBar/>
+                            <Container component="main" maxWidth="sm" >
+                      <CssBaseline />
+                      <br/>
+                      <br/>
+                      
+                        <Grid container={true} justify="center" style = {{width:600}}>
+                      <Grid item={true} >
+                      <div className={classes.App} >
+                      <Card className={classes.card}>
+                      <CardContent className={classes.content} >
+                        <div align="center">
+                        <Avatar className={classes.avatar} key={faces} src={getprofileimageurl} className={classes.large} />
+                        </div>
+                        <br/>
+                        <MuiThemeProvider theme={THEME}>
+                      <Typography gutterBottom variant="h5" component="h2" fontWeight='600'>
+                            {FullName}
+                          </Typography>
+                          </MuiThemeProvider>
+                          <Typography gutterBottom variant="h6" component="h1">
+            {occupation}
           </Typography>
-          <Typography
-            className={"MuiTypography--subheading"}
-            variant={"body2"}>
-            {Bio}
-          </Typography>
-          <br/>
-          <br/>
-          {Address?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Address: {Address}
-          </Typography>: null}
-          <br/>
-          {Country?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Country: {Country}
-          </Typography>: null}
-          <br/>
-          {Region?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Region: {Region}
-          </Typography>: null}
-          <br/>
-          <br/>
-          {showCellPhone?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Cell Phone: {CellPhone}
-          </Typography>: null}
-          <br/>
-          {showHomePhone?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Home Phone: {HomePhone}
-          </Typography>: null}
-          <br/>
-          {Faxx.showFax?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Fax: {Faxx.faxValue}
-          </Typography>: null}
-          <br/>
+                          <Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"body2"}
+                            align="left">
+                            {Bio}
+                          </Typography>
+                          <br/>
+                          <ColoredLine color="blue" />
+                          <br/>
+                          <Typography gutterBottom variant="h6" component="h1">
+                            Contact Details
+                          </Typography>
+                          <Link href={hrefurl} color="blue">
+          web link : http://localhost:3000/DisplayProfile/{props.match.params.username}
+  </Link>
+  <br/>
           {Emaill.showEmail?<Typography
             className={"MuiTypography--subheading"}
             variant={"overline"}>
             Email: {Emaill.emailValue}
           </Typography>: null}
           <br/>
-          <br/>
-          <IconButton aria-label="linkedIn" disabled={!showLinkedIn}>
-             <LinkedInIcon /> 
+                          {Address?<Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"overline"} align="left">
+                            Address: {Address}
+                          </Typography>: null}
+                          <br/>
+                          {Country?<Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"overline"} align="left">
+                            Country: {Country}
+                          </Typography>: null}
+                          <br/>
+                          {Region?<Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"overline"} align="left">
+                            Region: {Region}
+                          </Typography>: null}
+                          <br/>
+                          <br/>
+                          {showCellPhone?<Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"overline"}>
+                            Cell Phone: {CellPhone}
+                          </Typography>: null}
+                          <br/>
+                          {showHomePhone?<Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"overline"}>
+                            Home Phone: {HomePhone}
+                          </Typography>: null}
+                          <br/>
+                          {Faxx.showFax?<Typography
+                            className={"MuiTypography--subheading"}
+                            variant={"overline"}>
+                            Fax: {Faxx.faxValue}
+                          </Typography>: null}
+                          <br/>
+                          <ColoredLine color="blue" />
+                          <br/>
+                          <Typography gutterBottom variant="h6" component="h1">
+                            Social Media Links
+                          </Typography>
+                          <div align='center' >
+                          {LinkedInState.LinkedInUName != "" ? <Typography gutterBottom variant="h6" component="h1" variant="body2">
+          <IconButton aria-label="linkedIn" disabled={!showLinkedIn} onClick={()=> window.open("https://www.linkedin.com/in/"+LinkedInState.LinkedInUName, "_blank")}>
+             <img src={linkedinImage} height="30px" /> 
            </IconButton>
-           <IconButton aria-label="Instagram" disabled={!showInstagram}>
-             <InstagramIcon /> 
+           {LinkedInState.LinkedInUName}
+          </Typography>:""}
+          {InstagramState.InstagramUName != "" ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="Instagram" disabled={!showInstagram} onClick={()=> window.open("https://www.instagram.com/"+InstagramState.InstagramUName,"_blank")}>
+           <img src={instagramImage} height="35px" edge='start'/> 
            </IconButton>
-           <IconButton aria-label="Facebook" disabled={!showFacebook}>
-             <FacebookIcon /> 
+           {InstagramState.InstagramUName}
+           </Typography>: ""}
+          
+          {FacebookState.FacebookUName != "" ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2" onClick={()=> window.open("https://www.facebook.com/"+FacebookState.FacebookUName,"_blank")}>
+           <IconButton aria-label="Facebook" disabled={!showFacebook} >
+           <img src={facebookImage} height="30px" edge='start'/> 
            </IconButton>
-           <IconButton aria-label="YouTube" disabled={!showYoutube}>
-             <YouTubeIcon /> 
+           {FacebookState.FacebookUName} 
+           </Typography>: ""}
+           
+           {YoutubeState.YoutubeUName != ""?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="YouTube" disabled={!showYoutube} onClick={()=> window.open("https://www.youtube.com/results?search_query="+YoutubeState.YoutubeUName,"_blank")}>
+           <img src={youtubeImage} height="30px" edge='start'/>   
            </IconButton>
-           <IconButton aria-label="Pinterest" disabled={!showPinterest}>
-             <PinterestIcon /> 
+           {YoutubeState.YoutubeUName}
+           </Typography>:""}
+           
+           {RedditState.RedditUName != "" ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="Reddit" disabled={!showReddit} onClick={()=> window.open("https://www.reddit.com/r/"+RedditState.RedditUName,"_blank")}>
+           <img src={redditImage} height="30px" edge='start'/>
            </IconButton>
-           <IconButton aria-label="Reddit" disabled={!showReddit}>
-             <RedditIcon /> 
+           {RedditState.RedditUName}
+           </Typography>:""}
+           
+           {TwitterState.TwitterUName != "" ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="Twitter" disabled={!showTwitter} onClick={() => window.open("https://twitter.com/"+TwitterState.TwitterUName,"_blank")}>
+           <img src={twitterImage} height="30px" edge='start'/>
            </IconButton>
-           <IconButton aria-label="Twitter" disabled={!showTwitter}>
-             <TwitterIcon /> 
-           </IconButton>
-          <Divider className={classes.divider} light />
-          <Typography variant="overline" display="block" gutterBottom align='center'>
-        PRVY CARD
-      </Typography>
-      <Typography variant="caption" display="block" gutterBottom align='center'>
-        powered by PRVY CARD
-      </Typography>
-        </CardContent>
-        </Card>
-      </div>
-      
-          </Grid> 
-         
-          <Grid >
-              <br/>
-          <Button
-        variant="contained"
-        color="primary"
-        size="large"
-        className={classes.button}
-        startIcon={<SaveIcon />}
-        onClick={()=>downloadVcardFile(props.location.state.uname,FullName,HomePhone,CellPhone,Emaill.emailValue,Faxx.faxValue,
-          LinkedInState.LinkedInUName,TwitterState.TwitterUName,InstagramState.InstagramUName,FacebookState.FacebookUName,Country,Region,Address,Bio,
-          RedditState.RedditUName,PinterestState.PinterestUName,YoutubeState.YoutubeUName)}
-      >
-        Download Details
-      </Button>
-      </Grid> 
-  </Grid>
-  </Container>
-  </div>
-    );
-  }
+           {TwitterState.TwitterUName}
+           </Typography>:""}
+
+                
+                           </div>
+                          <Divider className={classes.divider} light />
+                          <Typography variant="overline" display="block" gutterBottom align='center'>
+                        PRVY CARD
+                      </Typography>
+                      <Typography variant="caption" display="block" gutterBottom align='center'>
+                        powered by PRVY CARD
+                      </Typography>
+                        </CardContent>
+                      </Card>
+                    </div>
+                          </Grid> 
+                         
+                          <Grid item={true}>
+                              <br/>
+                          <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        className={classes.button}
+                        startIcon={<SaveIcon />}
+                        onClick={()=>downloadVcardFile(props.match.params.username,FullName,HomePhone,CellPhone,Emaill.emailValue,Faxx.faxValue,
+                          LinkedInState.LinkedInUName,TwitterState.TwitterUName,InstagramState.InstagramUName,FacebookState.FacebookUName,Country,Region,Address,Bio,
+                          RedditState.RedditUName,PinterestState.PinterestUName,YoutubeState.YoutubeUName)}
+                      >
+                        Download Details
+                      </Button>
+                      <br/>
+                      </Grid> 
+                  </Grid>
+                  </Container>
+                  </div>
+                    );
+                  }

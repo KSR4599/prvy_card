@@ -49,6 +49,13 @@ import usePlacesAutocomplete from "use-places-autocomplete";
 import Address from "./Address";
 import { CountryDropdown, RegionDropdown, CountryRegionData } from 'react-country-region-selector';
 import axios from 'axios';
+import linkedinImage from '../utils/linkedin.png';
+import facebookImage from '../utils/facebook.png';
+import instagramImage from '../utils/instagram.jpeg';
+import redditImage from '../utils/reddit.jpeg';
+import twitterImage from '../utils/twitter.png';
+import youtubeImage from '../utils/youtube.png';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 const faces = [
     "http://i.pravatar.cc/300?img=1"
@@ -67,6 +74,17 @@ function Copyright() {
     </Typography>
   );
 }
+
+const THEME = createMuiTheme({
+  typography: {
+    h6: {
+      "fontWeight": 600,
+    },
+    h5:{
+      "fontWeight": 600,
+    }
+  },
+});
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -102,7 +120,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "56.25%"
   },
   content: {
-    textAlign: "left",
+    textAlign: "center",
     padding: 10
   },
   heading: {
@@ -132,8 +150,22 @@ const useStyles = makeStyles((theme) => ({
   container:{
       width:'500px',
       height:'600px'
+  },
+  large: {
+    width: theme.spacing(12),
+    height: theme.spacing(12)
   }
 }));
+
+const ColoredLine = ({ color }) => (
+  <hr
+      style={{
+          color: color,
+          backgroundColor: color,
+          height: 5
+      }}
+  />
+);
 
 function useMergeState(initialState) {
     const [state, setState] = useState(initialState);
@@ -224,7 +256,7 @@ function useMergeState(initialState) {
                   onClose={handleClose}
                 >
                   <MenuItem onClick={()=> history.push({
-      pathname: '/DisplayProfile',
+      pathname: '/DisplayProfile/'+props.uname,
       state: { uname: props.uname }
     })}>Profile</MenuItem>
                   <MenuItem onClick={()=> { onLogout() }}> Logout</MenuItem>
@@ -254,10 +286,11 @@ function useMergeState(initialState) {
   };
 
   
-export default function SignUp(props) 
+  export default function SignUp(props) 
   {
   const classes = useStyles();
   const [FullName,SetFullName] = useState('');
+  const [occupation,setOccupation] = useState('');
   const [Bio,SetBio] = useState('');
   const [Phone,SetPhone] = useState('');
   const[Image,SetImage] = useState('');
@@ -266,8 +299,7 @@ export default function SignUp(props)
   const [profile,setProfile] = useState('');
   const[isSending,setIsSending] = useState(false);
 const isMounted =useRef(true);
-const [username,SetUserName] = useState(props.location.state.username);
-
+const [username,SetUserName] = useState(props.match.params.username);
 
   const [LinkedInState,SetLinkedInUName] = useMergeState({
     LinkedInUName: '',
@@ -284,10 +316,6 @@ const [username,SetUserName] = useState(props.location.state.username);
   const [YoutubeState,SetYoutubeUName] = useMergeState({
     YoutubeUName: '',
     YoutubeDisable: true,
-  });
-  const [PinterestState,SetPinterestUName] = useMergeState({
-    PinterestUName: '',
-    PinterestDisable: true,
   });
   const [RedditState,SetRedditUName] = useMergeState({
     RedditUName: '',
@@ -335,12 +363,9 @@ function setDefaultImage(uploadType){
 function uploadImage(e,method) {
   
 if(method === "multer"){
-console.log(e.target.files[0]);
   let imageFormObj = new FormData();
   imageFormObj.append("imageName", "multer-image-" + Date.now());
   imageFormObj.append("imageData", e.target.files[0]);
-
-  console.log(imageFormObj)
  
   setMulterImage(URL.createObjectURL(e.target.files[0]));
   
@@ -362,27 +387,7 @@ setDefaultImage("multer");
 
 };
 
-useEffect(async () =>{
-
-  let url = "http://localhost:8013/get_user/"
-
-  axios({
-    method: "GET",
-    withCredentials: true,
-    url: url,
-  }).then((res) => {
-    if(res.status == 200){
-      console.log("The raw auth response is : "+ res);
-    } 
-
-    if(res.status == 201){
-      console.log("Oops! The user is not authenticated");
-    }
-  })
-
-    
-
-
+useEffect(() =>{
   getProfileImage(username);
   getProfile(username);
   return () =>{
@@ -396,10 +401,7 @@ function getProfileImage(username){
   let url = "http://localhost:8013/api1/get_profileimage/?username="+username;
 
   axios.get(url).then(response => {
-    console.log(Buffer.from(response.data, 'binary').toString('base64'));
     setMulterImage(Buffer.from(response.data, 'binary').toString('base64'));
-    
-   
   })
 };
   
@@ -410,75 +412,84 @@ let url = "http://localhost:8013/api1/get_profile/?username="+username;
 
   axios.get(url)
   .then(response => {
-    console.log("The response status in get profile is " + response.status);
-    console.log(response.data)
     if(response.status == 200)
     {
     SetFullName(response.data.firstname);
-    
+
+    if(response.data.occupation != "" && response.data.occupation != "undefined")
+    {
+    setOccupation(response.data.occupation);
+    }
+
+    if(response.data.bio != "" && response.data.bio != "undefined"){
     SetBio(response.data.bio);
+    }
+    
+    if(response.data.bio != "" && response.data.bio != "undefined"){
     setAddress(response.data.address);
+    }
     
+    if(response.data.contactSchema.country != "" && response.data.contactSchema.country != "null")
+    {
     setCountry(response.data.contactSchema.country);
-    setRegion(response.data.contactSchema.state);
+    }
     
-    if(response.data.contactSchema.cell != ""){
+
+    if(response.data.contactSchema.state != "" && response.data.contactSchema.state != "null"){
+    setRegion(response.data.contactSchema.state);
+    }
+
+    if(response.data.contactSchema.cell != "" && response.data.contactSchema.cell  != "null"){
       setShowCellPhone(true);
       setCellPhone(response.data.contactSchema.cell);
     }
-    if(response.data.contactSchema.home != ""){
+    if(response.data.contactSchema.home != "" && response.data.contactSchema.home != "null"){
       setShowHomePhone(true);
       setHomePhone(response.data.contactSchema.home);
     }
-    if(response.data.contactSchema.email != ""){
+    if(response.data.contactSchema.email != "" && response.data.contactSchema.email != "null"){
       setShowEmail({showEmail:true,emailValue:response.data.email});;
     }
-    if(response.data.contactSchema.fax != ""){
+    if(response.data.contactSchema.fax != "" && response.data.contactSchema.fax != "null"){
       setShowFax({showFax:true,faxValue:response.data.contactSchema.fax});;
     }
-    if(response.data.socialSchema.linkedin != ""){
+    if(response.data.socialSchema.linkedin != "" && response.data.socialSchema.linkedin != "null"){
       SetLinkedInUName({
         LinkedInUName: response.data.socialSchema.linkedin,
         LinkedInDisable: false 
       });
       setShowLinkedIn(true);
     }
-    if(response.data.socialSchema.instagram != ""){
+    
+    if(response.data.socialSchema.instagram != "" && response.data.socialSchema.instagram != "null"){
       SetInstagramUName({
         InstagramUName: response.data.socialSchema.instagram,
         InstagramDisable: false 
       });
       setShowInstagram(true);
     }
-    if(response.data.socialSchema.facebook != ""){
+    if(response.data.socialSchema.facebook != "" && response.data.socialSchema.facebook != "null"){
       SetFacebookUName({
         FacebookUName: response.data.socialSchema.facebook,
         FacebookDisable: false 
       });
       setShowFacebook(true);
     }
-    if(response.data.socialSchema.youtube != "" ){
+    if(response.data.socialSchema.youtube != "" && response.data.socialSchema.youtube != "null"){
       SetYoutubeUName({
         YoutubeUName: response.data.socialSchema.youtube,
         YoutubeDisable: false 
       });
       setShowYoutube(true);
     };
-    if(response.data.socialSchema.twitter != ""){
+    if(response.data.socialSchema.twitter != "" && response.data.socialSchema.twitter != "null"){
       SetTwitterUName({
         TwitterUName: response.data.socialSchema.twitter,
         TwitterDisable: false 
       });
       setShowTwitter(true);
     };
-    if(response.data.socialSchema.pinterest != ""){
-      SetPinterestUName({
-        PinterestUName: response.data.socialSchema.pinterest,
-        PinterestDisable: false 
-      });
-      setShowPinterest(true);
-    };
-    if(response.data.socialSchema.reddit != ""){
+    if(response.data.socialSchema.reddit != "" && response.data.socialSchema.reddit != "null"){
       SetRedditUName({
         RedditUName: response.data.socialSchema.reddit,
         RedditDisable: false 
@@ -499,7 +510,6 @@ let url = "http://localhost:8013/api1/get_profile/?username="+username;
 
 const handleSocialMediaChange = (event) => {
     setSocialMedia(event.target.value);
-    console.log(event.target.value)
     if(event.target.value == 10){
       setShowLinkedIn(true);
     }
@@ -512,9 +522,6 @@ const handleSocialMediaChange = (event) => {
       if(event.target.value == 40){
         setShowYoutube(true);
       }
-      if(event.target.value == 50){
-        setShowPinterest(true);
-      }
       if(event.target.value == 60){
         setShowReddit(true);
       }
@@ -524,7 +531,6 @@ const handleSocialMediaChange = (event) => {
   };
 
 const handleContactChange = (event) => {
-      console.log(event)
     setContact(event.target.value);
     if(event.target.value == 10){
         setShowCellPhone(true);
@@ -542,15 +548,15 @@ const handleContactChange = (event) => {
 
 
   const updateProfile = useCallback(async (
-    FullName,Bio,Address,Region,Country,CellPhone,HomePhone,Emaill,Faxx,
-                LinkedInUName,InstagramUName,FacebookUName,YoutubeUName,PinterestUName,RedditUName,TwitterUName) => {
-    
+    FullName,occupation,Bio,Address,Region,Country,CellPhone,HomePhone,Emaill,Faxx,
+                LinkedInUName,InstagramUName,FacebookUName,YoutubeUName,RedditUName,TwitterUName) => {
+
     if(isSending) return;
       setIsSending(true);
       let res = await fetch(
-        "http://localhost:8013/api1/update_handle/?username="+props.location.state.username+
-        "&fullname="+FullName+"&instagram="+InstagramUName+"&twitter="+TwitterUName+
-        "&facebook="+FacebookUName+"&pinterest="+PinterestUName+"&youtube="+YoutubeUName+
+        "http://localhost:8013/api1/update_handle/?username="+props.match.params.username+"&occupation="+
+        occupation+"&fullname="+FullName+"&instagram="+InstagramUName+"&twitter="+TwitterUName+
+        "&facebook="+FacebookUName+"&youtube="+YoutubeUName+
         "&linkedin="+LinkedInUName+"&reddit="+RedditUName+"&bio="+Bio+"&address="+Address+
         "&country="+Country+"&state="+Region+"&cell="+CellPhone+"&home="+HomePhone+"&fax="+
         Faxx+"&email="+Emaill,
@@ -586,7 +592,7 @@ const handleContactChange = (event) => {
       body: formData
     });
   };
-
+ let hrefurl = "http://localhost:3000/DisplayProfile/"+username
  let getprofileimageurl = "http://localhost:8013/api1/get_profileimage/?username="+username
   return (
 <div>
@@ -613,6 +619,19 @@ const handleContactChange = (event) => {
                 autoFocus
                 value={FullName}
                 onChange={(e)=>SetFullName(e.target.value)}
+              />
+              <br/>
+              <br/>
+              <TextField
+                name="occupation"
+                variant="outlined"
+                required
+                style = {{width:400}}
+                id="occupation"
+                label="Occupation"
+                autoFocus
+                value={occupation}
+                onChange={(e)=>setOccupation(e.target.value)}
               />
               <br/>
               <br/>
@@ -781,16 +800,12 @@ const handleContactChange = (event) => {
           <MenuItem value={20}>Instagram</MenuItem>
           <MenuItem value={30}>Facebook</MenuItem>
           <MenuItem value={40}>Youtube</MenuItem>
-          <MenuItem value={50}>Pinterest</MenuItem>
           <MenuItem value={60}>Reddit</MenuItem>
           <MenuItem value={70}>Twitter</MenuItem>
         </Select>
       </FormControl>
-      </Grid>
-
-            
-            
-          
+      </Grid> 
+      
           {showLinkedIn? 
           <Grid container spacing={2} alignItems="flex-end" item >
           <Grid item>
@@ -799,7 +814,7 @@ const handleContactChange = (event) => {
           <Grid item > 
             <TextField value={LinkedInState.LinkedInUName} style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="LinkedIn UserName" onChange={(e)=>{SetLinkedInUName({
           LinkedInUName: e.target.value,
-          LinkedInDisable: !e.target.value ,
+          LinkedInDisable: false ,
         });}}/>
         <ClearIcon onClick={()=>
           {
@@ -816,7 +831,6 @@ const handleContactChange = (event) => {
           : null}
           </Grid>
 
-
           {showInstagram ? <Grid container spacing={2} alignItems="flex-end" item >
             <Grid item>
             <InstagramIcon color="primary" />
@@ -824,7 +838,7 @@ const handleContactChange = (event) => {
           <Grid item>
             <TextField value={InstagramState.InstagramUName} style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="Instagram UserName" onChange={(e)=>{SetInstagramUName({
           InstagramUName: e.target.value,
-          InstagramDisable: !e.target.value ,
+          InstagramDisable: false ,
         });}}/>
         <ClearIcon onClick={()=>{
           setShowInstagram(false)
@@ -845,7 +859,7 @@ const handleContactChange = (event) => {
           <Grid item>
             <TextField value={FacebookState.FacebookUName} style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="FaceBook UserName" onChange={(e)=>{SetFacebookUName({
           FacebookUName: e.target.value,
-          FacebookDisable: !e.target.value ,
+          FacebookDisable: false ,
         });}}/>
         <ClearIcon onClick={()=>{
           setShowFacebook(false)
@@ -858,9 +872,6 @@ const handleContactChange = (event) => {
           </Grid>
           </Grid>:
           null}
-
-
-
           {showYoutube ?<Grid container spacing={2} alignItems="flex-end" item > 
             <Grid item>
             <YouTubeIcon color="primary" />
@@ -868,7 +879,7 @@ const handleContactChange = (event) => {
           <Grid item>
             <TextField value={YoutubeState.YoutubeUName} style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="Youtube UserName" onChange={(e)=>{SetYoutubeUName({
           YoutubeUName: e.target.value,
-          YoutubeDisable: !e.target.value ,
+          YoutubeDisable: false ,
         });}}/>
         <ClearIcon onClick={()=>{
           setShowYoutube(false)
@@ -880,30 +891,6 @@ const handleContactChange = (event) => {
         }/>
           </Grid>
           </Grid>:null}
-
-
-          {showPinterest?<Grid container spacing={2} alignItems="flex-end" item > 
-            <Grid item>
-            <PinterestIcon color="primary" />
-          </Grid>
-          <Grid item>
-            <TextField value={PinterestState.PinterestUName}style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="Pinterest UserName" onChange={(e)=>{SetPinterestUName({
-          PinterestUName: e.target.value,
-          PinterestDisable: !e.target.value ,
-        });}}/>
-        <ClearIcon onClick={()=>
-          {
-            setShowPinterest(false)
-            SetPinterestUName({
-              PinterestUName: '',
-              PinterestDisable: true ,
-            })
-          }
-          }/>
-          </Grid>
-          </Grid>:null}
-
-
           {showReddit ?
           <Grid container spacing={2} alignItems="flex-end" item > 
             <Grid item>
@@ -912,7 +899,7 @@ const handleContactChange = (event) => {
           <Grid item>
             <TextField value={RedditState.RedditUName} style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="Reddit UserName" onChange={(e)=>{SetRedditUName({
           RedditUName: e.target.value,
-          RedditDisable: !e.target.value ,
+          RedditDisable: false ,
         });}}/>
         <ClearIcon onClick={()=>
         {
@@ -935,7 +922,7 @@ const handleContactChange = (event) => {
           <Grid item>
             <TextField value={TwitterState.TwitterUName} style = {{width:330}} className={classes.textField} id="input-with-icon-grid" label="Twitter UserName" onChange={(e)=>{SetTwitterUName({
           TwitterUName: e.target.value,
-          TwitterDisable: !e.target.value ,
+          TwitterDisable: false ,
         });}}/>
         <ClearIcon onClick={()=>
           {
@@ -949,8 +936,6 @@ const handleContactChange = (event) => {
           </Grid>
           </Grid>:null}
 
-
-         
           <Button
             type="submit"
             fullWidth
@@ -958,9 +943,8 @@ const handleContactChange = (event) => {
             color="primary"
             className={classes.submit}
             onClick={()=>{
-              updateProfile(FullName,Bio,Address,Region,Country,CellPhone,HomePhone,Emaill.emailValue,Faxx.faxValue,
-                LinkedInState.LinkedInUName,InstagramState.InstagramUName,FacebookState.FacebookUName,YoutubeState.YoutubeUName,
-              PinterestState.PinterestUName,RedditState.RedditUName,TwitterState.TwitterUName)}}>
+              updateProfile(FullName,occupation,Bio,Address,Region,Country,CellPhone,HomePhone,Emaill.emailValue,Faxx.faxValue,
+                LinkedInState.LinkedInUName,InstagramState.InstagramUName,FacebookState.FacebookUName,YoutubeState.YoutubeUName,RedditState.RedditUName,TwitterState.TwitterUName)}}>
             Update Profile
           </Button>
         </form>
@@ -968,47 +952,62 @@ const handleContactChange = (event) => {
       </Box>
     </Container>
     </Grid>
-    
+   
     <Grid item={true} xs={12} sm={6} >
-    <div className={classes.App}>
+    <div className={classes.App} >
       <Card className={classes.card}>
-      <CardActionArea>
-
-      <div align="center">
-      <Avatar className={classes.avatar} key={faces} src={getprofileimageurl}/>
-    </div>
-     
-
-
-        <CardContent className={classes.content}>
-        <Typography gutterBottom variant="h5" component="h2">
+      <CardContent className={classes.content} >
+        <div align="center">
+        <Avatar className={classes.avatar} key={faces} src={getprofileimageurl} className={classes.large} />
+        </div>
+        <br/>
+        <MuiThemeProvider theme={THEME}>
+      <Typography gutterBottom variant="h5" component="h2">
             {FullName}
+          </Typography>
+          </MuiThemeProvider>
+          <Typography gutterBottom variant="h6" component="h1">
+            {occupation}
           </Typography>
           <Typography
             className={"MuiTypography--subheading"}
-            variant={"body2"}>
+            variant={"body2"}
+            align="left">
             {Bio}
           </Typography>
           <br/>
+          <ColoredLine color="blue" />
+          <br/>
+          <Typography gutterBottom variant="h6" component="h1">
+            Contact Details
+          </Typography>
+          <Link href={hrefurl} color="blue">
+          web link : http://localhost:3000/DisplayProfile/{username}
+  </Link>
+  <br/>
+          {Emaill.showEmail?<Typography
+            className={"MuiTypography--subheading"}
+            variant={"overline"}>
+            Email: {Emaill.emailValue}
+          </Typography>: null}
           <br/>
           {Address?<Typography
             className={"MuiTypography--subheading"}
-            variant={"overline"}>
+            variant={"overline"} align="left">
             Address: {Address}
           </Typography>: null}
           <br/>
           {Country?<Typography
             className={"MuiTypography--subheading"}
-            variant={"overline"}>
+            variant={"overline"} align="left">
             Country: {Country}
           </Typography>: null}
           <br/>
           {Region?<Typography
             className={"MuiTypography--subheading"}
-            variant={"overline"}>
+            variant={"overline"} align="left">
             Region: {Region}
           </Typography>: null}
-          <br/>
           <br/>
           {showCellPhone?<Typography
             className={"MuiTypography--subheading"}
@@ -1028,34 +1027,60 @@ const handleContactChange = (event) => {
             Fax: {Faxx.faxValue}
           </Typography>: null}
           <br/>
-          {Emaill.showEmail?<Typography
-            className={"MuiTypography--subheading"}
-            variant={"overline"}>
-            Email: {Emaill.emailValue}
-          </Typography>: null}
+          <ColoredLine color="blue" />
           <br/>
-          <br/>
-          <IconButton aria-label="linkedIn" disabled={!showLinkedIn}>
-             <LinkedInIcon /> 
+           
+          <Typography gutterBottom variant="h6" component="h1">
+            Social Media Links
+          </Typography>
+          <div align='center' >
+          { LinkedInState.LinkedInDisable == false ? <Typography gutterBottom variant="h6" component="h1" variant="body2">
+          <IconButton aria-label="linkedIn" disabled={!showLinkedIn} onClick={()=> window.open("https://www.linkedin.com/in/"+LinkedInState.LinkedInUName, "_blank")}>
+             <img src={linkedinImage} height="30px" /> 
            </IconButton>
-           <IconButton aria-label="Instagram" disabled={!showInstagram}>
-             <InstagramIcon /> 
+           {LinkedInState.LinkedInUName}
+          </Typography>:""}
+          {InstagramState.InstagramDisable == false ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="Instagram" disabled={!showInstagram} onClick={()=> window.open("https://www.instagram.com/"+InstagramState.InstagramUName,"_blank")}>
+           <img src={instagramImage} height="35px" edge='start'/> 
            </IconButton>
-           <IconButton aria-label="Facebook" disabled={!showFacebook}>
-             <FacebookIcon /> 
+           {InstagramState.InstagramUName}
+           </Typography>: ""}
+          
+          {FacebookState.FacebookDisable == false ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2" onClick={()=> window.open("https://www.facebook.com/"+FacebookState.FacebookUName,"_blank")}>
+           <IconButton aria-label="Facebook" disabled={!showFacebook} >
+           <img src={facebookImage} height="30px" edge='start'/> 
            </IconButton>
-           <IconButton aria-label="YouTube" disabled={!showYoutube}>
-             <YouTubeIcon /> 
+           {FacebookState.FacebookUName} 
+           </Typography>: ""}
+           
+           {YoutubeState.YoutubeDisable == false ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="YouTube" disabled={!showYoutube} onClick={()=> window.open("https://www.youtube.com/results?search_query="+YoutubeState.YoutubeUName,"_blank")}>
+           <img src={youtubeImage} height="30px" edge='start'/>   
            </IconButton>
-           <IconButton aria-label="Pinterest" disabled={!showPinterest}>
-             <PinterestIcon /> 
+           {YoutubeState.YoutubeUName}
+           </Typography>:""}
+           
+           {RedditState.RedditDisable == false ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="Reddit" disabled={!showReddit} onClick={()=> window.open("https://www.reddit.com/r/"+RedditState.RedditUName,"_blank")}>
+           <img src={redditImage} height="30px" edge='start'/>
            </IconButton>
-           <IconButton aria-label="Reddit" disabled={!showReddit}>
-             <RedditIcon /> 
+           {RedditState.RedditUName}
+           </Typography>:""}
+           
+           {TwitterState.TwitterDisable == false ?
+           <Typography gutterBottom variant="h6" component="h1" variant="body2">
+           <IconButton aria-label="Twitter" disabled={!showTwitter} onClick={() => window.open("https://twitter.com/"+TwitterState.TwitterUName,"_blank")}>
+           <img src={twitterImage} height="30px" edge='start'/>
            </IconButton>
-           <IconButton aria-label="Twitter" disabled={!showTwitter}>
-             <TwitterIcon /> 
-           </IconButton>
+           {TwitterState.TwitterUName}
+           </Typography>:""}
+
+           </div>
           <Divider className={classes.divider} light />
           <Typography variant="overline" display="block" gutterBottom align='center'>
         PRVY CARD
@@ -1064,11 +1089,11 @@ const handleContactChange = (event) => {
         powered by PRVY CARD
       </Typography>
         </CardContent>
-        </CardActionArea>
       </Card>
     </div>
         </Grid>  
 </Grid>
+
     </div>
   );
 }

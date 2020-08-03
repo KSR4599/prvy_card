@@ -400,7 +400,8 @@ router.post('/del_request', function(req, res,next) {
                         user.firstname = req.query.fullname; 
 
                        // user.lastname = req.query.lastname; 
-                        
+                       user.occupation = req.query.occupation;
+                       
                         user.socialSchema.instagram=  req.query.instagram;
       
                         user.socialSchema.twitter=  req.query.twitter;

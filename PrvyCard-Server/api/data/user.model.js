@@ -29,6 +29,10 @@ var userSchema= new mongoose.Schema({
     firstname: {
       type: String,
     },
+    occupation:{
+      type: String,
+      index: true
+    },
     lastname: {
       type: String,
       index:true

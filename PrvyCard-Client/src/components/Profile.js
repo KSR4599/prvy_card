@@ -294,6 +294,7 @@ function useMergeState(initialState) {
   const [Bio,SetBio] = useState('');
   const [Phone,SetPhone] = useState('');
   const[Image,SetImage] = useState('');
+  const[Session,SetSession] = useState('');
   const [image, setImage] = useState({ preview: "", raw: "" });
   
   const [profile,setProfile] = useState('');
@@ -386,6 +387,7 @@ setDefaultImage("multer");
 }
 
 };
+
 
 useEffect(() =>{
   getProfileImage(username);
@@ -595,6 +597,8 @@ const handleContactChange = (event) => {
  let hrefurl = "http://localhost:3000/DisplayProfile/"+username
  let getprofileimageurl = "http://localhost:8013/api1/get_profileimage/?username="+username
   return (
+    Session?
+( 
 <div>
     <MenuAppBar uname={username}/>
     <CssBaseline />
@@ -1095,5 +1099,8 @@ const handleContactChange = (event) => {
 </Grid>
 
     </div>
+): history.push({
+  pathname: '/login'
+})
   );
 }

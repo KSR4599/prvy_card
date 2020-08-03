@@ -46,6 +46,7 @@ import VCard from 'vcard-creator'
 import download from 'js-file-download'
 import axios from 'axios';
 import { Buffer } from 'buffer'
+
 import linkedinImage from '../utils/linkedin.png';
 import facebookImage from '../utils/facebook.png';
 import instagramImage from '../utils/instagram.jpeg';
@@ -53,6 +54,7 @@ import redditImage from '../utils/reddit.jpeg';
 import twitterImage from '../utils/twitter.png';
 import youtubeImage from '../utils/youtube.png';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
 
 const history = createBrowserHistory({ forceRefresh: true });
 
